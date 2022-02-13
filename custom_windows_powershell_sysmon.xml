@@ -1,0 +1,73 @@
+<!--
+	OSSEC/Wazuh rules - by 0xbad53c
+-->
+<group name="windows, sysmon, sysmon_process-anomalies,">
+	<rule id="184778" level="0">
+	  <if_group>sysmon_event1</if_group>
+	  <field name="win.eventdata.image">powershell.exe</field>
+	  <description>Sysmon - Powershell Use Detected</description>
+	</rule>
+
+	<rule id="184779" level="12">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">-enc</field>
+	  <field name="win.eventdata.commandLine" negate="yes">Amazon</field>
+	  <field name="win.eventdata.commandLine" negate="yes">powershell.exe -ExecutionPolicy Restricted -Command Write-Host</field>
+	  <description>Sysmon - Powershell Encoding Detected</description>
+	</rule>
+
+	<rule id="184781" level="12">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">-w hidden|-window hidden|-windowstyle hidden</field>
+	  <field name="win.eventdata.commandLine" negate="yes">Amazon</field>
+	  <field name="win.eventdata.commandLine" negate="yes">powershell.exe -ExecutionPolicy Restricted -Command Write-Host</field>
+	  <description>Sysmon - Powershell Hidden Window Detected</description>
+	</rule>
+
+	<rule id="184782" level="6">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">-ep|-ExecutionPolicy|-Exec</field>
+	  <field name="win.eventdata.commandLine" negate="yes">Amazon</field>
+	  <field name="win.eventdata.commandLine" negate="yes">powershell.exe -ExecutionPolicy Restricted -Command Write-Host</field>
+	  <description>Sysmon - Powershell ExecutionPolicy Bypass Detected</description>
+	</rule>
+
+	<rule id="184783" level="6">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">DownloadString|DownloadFile</field>
+	  <description>Sysmon - Powershell Downloader Function Detected</description>
+	</rule>
+
+	<rule id="184784" level="3">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">http://|https://</field>
+	  <description>Sysmon - Powershell URL in script Detected</description>
+	</rule>
+
+	<rule id="184785" level="12">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">-nop|-noprofile</field>
+	  <field name="win.eventdata.commandLine" negate="yes">Amazon</field>
+	  <field name="win.eventdata.commandLine" negate="yes">powershell.exe -ExecutionPolicy Restricted -Command Write-Host</field>
+	  <description>Sysmon - Powershell NoProfile Execution Detected</description>
+	</rule>
+
+	<rule id="184786" level="3">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.parentImage">cmd.exe|excel.exe|msiexec.exe|winword.exe|wmiprvse.exe|explorer.exe|wscript.exe</field>
+	  <description>Sysmon - Powershell Started Indirectly</description>
+	</rule>
+
+	<rule id="184787" level="3">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">Invoke</field>
+	  <description>Sysmon - Powershell Invoke- Detected</description>
+	</rule>
+
+	<rule id="184788" level="6">
+	  <if_sid>184778</if_sid>
+	  <field name="win.eventdata.commandLine">PSSession</field>
+	  <description>Sysmon - Powershell Remote Session Use Detected</description>
+	</rule>
+
+</group>

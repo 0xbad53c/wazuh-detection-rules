@@ -1,0 +1,45 @@
+<!--
+  OSSEC/Wazuh rules - by 0xbad53c
+-->
+<group name="Powershell logs,">
+
+<rule id="68000" level="0">
+  <if_sid>60000</if_sid>
+  <field name="win.system.channel">^Microsoft-Windows-Powershell/Operational$</field>
+  <options>no_full_log</options>
+  <description>Group of Windows rules for the Powershell channel</description>
+</rule>
+<rule id="68001" level="3">
+  <if_sid>68000</if_sid>
+  <field name="win.system.eventID">4104</field>
+  <description>Powershell - Script executed</description>
+  <group>Powershell_event,</group>
+</rule>
+
+<rule id="68002" level="12">
+  <if_sid>68001</if_sid>
+  <field name="win.eventdata.scriptBlockText">runtime.interopservices.marshal</field>
+  <description>PowerShell - Potential in-memory C# via powershell</description>
+</rule>
+
+<rule id="68003" level="12">
+  <if_sid>68001</if_sid>
+  <field name="win.eventdata.scriptBlockText">Invoke-DllInjection|Invoke-Shellcode|Invoke-WmiCommand|Get-GPPPassword|Get-Keystrokes|Get-TimedScreenshot|Get-VaultCredential|Invoke-CredentialInjection|mimikatz|Invoke-NinjaCopy|Invoke-TokenManipulation|Out-Minidump|VolumeShadowCopyTools|Invoke-ReflectivePEInjection|Invoke-UserHunter|Find-GPOLocation|Invoke-ACLScanner|Invoke-DowngradeAccount|Get-ServiceUnquoted|Get-ServiceFilePermission|Get-ServicePermission|Invoke-ServiceAbuse|Install-ServiceBinary|Get-RegAutoLogon|Get-VulnAutoRun|Get-VulnSchTask|Get-UnattendedInstallFile|Get-WebConfig|Get-ApplicationHost|Get-RegAlwaysInstallElevated|Get-Unconstrained|Add-RegBackdoor|Add-ScrnSaveBackdoor|Gupt-Backdoor|Invoke-ADSBackdoor|Enabled-DuplicateToken|Invoke-PsUaCme|Remove-Update|Check-VM|Get-LSASecret|Get-PassHashes|Show-TargetScreen|Port-Scan|netscan|psscan|Invoke-PoshRatHttp|Invoke-PowerShellTCP|Invoke-PowerShellWMI|Add-Exfiltration|Add-Persistence|Do-Exfiltration|Start-CaptureServer|Invoke-DllInjection|Invoke-ReflectivePEInjection|Invoke-ShellCode|Get-ChromeDump|Get-ClipboardContents|Get-FoxDump|Get-IndexedItem|Get-Keystrokes|Get-Screenshot|Invoke-Inveigh|Invoke-NetRipper|Invoke-NinjaCopy|Out-Minidump|Invoke-EgressCheck|Invoke-PSInject|Invoke-RunAs|MailRaider|New-HoneyHash|Set-MacAttribute|Get-VaultCredential|Invoke-DCSync|Invoke-PowerDump|Invoke-TokenManipulation|Exploit-Jboss|Invoke-ThunderStruck|Invoke-VoiceTroll|Invoke-InveighRelay|Invoke-PsExec|Invoke-SSHCommand|Get-SecurityPackages|Install-SSP|Invoke-BackdoorLNK|PowerBreach|Get-GPPPassword|Get-SiteListPassword|Get-System|BypassUAC|Invoke-Tater|PowerUp|PowerView|Get-RickAstley|Find-Fruit|HTTP-Login|Find-TrustedDocuments|Invoke-Paranoia|Invoke-WinEnum|Invoke-ARPScan|Invoke-ReverseDNSLookup|smbscanner|Invoke-FruityC2|Invoke-Stager</field>
+  <field name="win.eventdata.scriptBlockText" negate="yes">Amazon</field>
+<field name="win.eventdata.scriptBlockText" negate="yes">Get-SystemDriveInfo</field>
+  <description>PowerShell - Potentially malicious command detected</description>
+</rule>
+
+<rule id="68004" level="6">
+  <if_sid>68001</if_sid>
+  <field name="win.eventdata.scriptBlockText">DownloadString|downloadfile</field>
+  <description>PowerShell - Potential download - could be legitimate</description>
+</rule>
+
+<!--
+<rule id="68002" level="4">
+  <if_group>Powershell_event</if_group>
+  <description>Powershell - Script/Command Executed</description>
+</rule>
+-->
+</group>

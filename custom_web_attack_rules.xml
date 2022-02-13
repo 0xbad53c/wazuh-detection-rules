@@ -1,0 +1,36 @@
+<!--
+  OSSEC/Wazuh rules - by 0xbad53c
+-->
+<group name="web,appsec,attack,">
+  <rule id="105001" ignore="300" level="6">
+    <if_sid>31100</if_sid>
+    <match>Nikto</match>
+    <description>Nikto user agent detected (known malicious user agent).</description>
+   <group>pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+  </rule>
+<rule id="105002" ignore="300" level="6">
+    <if_sid>31100</if_sid>
+    <match>WPScan</match>
+    <description>WPScan user agent detected (known malicious user agent).</description>
+   <group>pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+  </rule>
+  <rule id="105101" frequency="300" timeframe="120" ignore="600" level="12">
+    <if_matched_sid>31100</if_matched_sid>
+    <match>Nikto</match>
+    <description>Application under attack - Nikto scan detected (known malicious user agent).</description>
+   <group>pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+  </rule>
+<rule id="105102" frequency="50" timeframe="120" ignore="600" level="12">
+    <if_matched_sid>31100</if_matched_sid>
+    <match>WPScan</match>
+    <description>Application under attack - WPScan scan detected (known malicious user agent).</description>
+   <group>pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+  </rule>
+ <rule id="105201" frequency="20" timeframe="120" level="12">
+    <if_matched_sid>31100</if_matched_sid>
+    <match>POST /</match>
+    <url>/xmlrpc.php</url>
+    <description>Potention password attack against xmlrpc.php</description>
+    <group>pci_dss_6.5,pci_dss_11.4,gdpr_IV_35.7.d,nist_800_53_SA.11,nist_800_53_SI.4,tsc_CC6.6,tsc_CC7.1,tsc_CC8.1,tsc_CC6.1,tsc_CC6.8,tsc_CC7.2,tsc_CC7.3,</group>
+   </rule>
+</group>

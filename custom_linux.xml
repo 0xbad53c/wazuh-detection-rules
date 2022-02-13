@@ -1,0 +1,32 @@
+<!--
+  OSSEC/Wazuh rules - by 0xbad53c
+-->
+<group name="local,syslog,scytl,">
+<!-- GENERAL -->
+
+  <rule id="119901" level="10">
+    <if_sid>5555</if_sid>
+    <match>password changed for root</match>
+    <description>Root password changed</description>
+  </rule>
+
+  <rule id="5901" level="6" overwrite="yes">
+    <match>^new group</match>
+    <description>New group added to the system</description>
+  </rule>
+
+  <rule id="119902" level="15">
+    <if_sid>5902</if_sid>
+    <match>GID=0|GID=10</match>
+    <description>User created in group WHEEL or ROOT</description>
+  </rule>
+
+  <rule id="119903" level="15">
+    <program_name>usermod|useradd</program_name>
+    <regex>add '\S+' to group 'root'|add '\S+' to group 'wheel'</regex>
+    <description>User added into group WHEEL or ROOT</description>
+  </rule>
+
+<!-- END GENERAL -->
+
+</group> <!-- SYSLOG,LOCAL -->

@@ -1,0 +1,212 @@
+<group name="audit,reverse_shells">
+	<!-- netcat -->
+	<rule id="111000" level="0">
+	    <if_sid>80789</if_sid>
+	    <field name="audit.exe">/usr/bin/nc|nc|ncat</field>
+	    <description>Netcat usage detected.</description>
+	</rule>
+	<rule id="111001" level="12">
+	    <if_sid>111000</if_sid>
+	    <match> -e </match>
+	    <description>Potential Shell: $(audit.exe) with user loginuid $(audit.auid)</description>
+	</rule>
+	<rule id="111002" level="12">
+	    <if_sid>111000</if_sid>
+	    <match> -c </match>
+	    <description>Potential Shell: $(audit.exe) with user loginuid $(audit.auid)</description>
+	</rule>
+</group>
+
+<group name="audit,recon">
+	<!-- netcat -->
+	<rule id="110100" level="5">
+	    <if_sid>80789</if_sid>
+	    <field name="audit.exe">/usr/bin/nmap</field>
+	    <description>Nmap usage detected.</description>
+	</rule>
+</group>
+
+<group name="syslog,reverse_shells">
+	<rule id="101000" level="0">
+	<program_name>^usercommand</program_name>
+	<description>usercommand detected.</description>
+	</rule>
+
+	<!-- group shell commands -->
+	<rule id="101020" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>sh</match>
+	    <description>Potential Shell Usage.</description>
+	</rule>
+	<rule id="101021" level="12">
+	    <if_sid>101020</if_sid>
+	    <match>/dev/tcp/</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+	<rule id="101022" level="12">
+	    <if_sid>101020</if_sid>
+	    <match>/dev/udp/</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- group python commands -->
+	<rule id="101040" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>python</match>
+	    <description>Potential Python Usage.</description>
+	</rule>
+	<rule id="101041" level="12">
+	    <if_sid>101040</if_sid>
+	    <match>-c</match>
+	    <match>socket</match>
+	    <match>subprocess</match>
+	    <match>call</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+	<rule id="101042" level="12">
+	    <if_sid>101040</if_sid>
+	    <match>-c</match>
+	    <match>socket</match>
+	    <match>pty</match>
+	    <match>spawn</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- php -->
+	<rule id="101060" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>php</match>
+	    <description>PHP usage detected.</description>
+	</rule>
+	<rule id="101061" level="12">
+	    <if_sid>101060</if_sid>
+	    <match>-r</match>
+	    <match>fsockopen</match>
+	    <match>exec|shell_exec|system|passthru|popen|`</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- perl -->
+	<rule id="101080" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>perl</match>
+	    <description>Perl usage detected.</description>
+	</rule>
+	<rule id="101081" level="12">
+	    <if_sid>101080</if_sid>
+	    <match>-e</match>
+	    <match>socket</match>
+	    <match>connect</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+	<rule id="101082" level="12">
+	    <if_sid>101080</if_sid>
+	    <match>-MIO</match>
+	    <match>-e</match>
+	    <match>Socket</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- socat -->
+	<rule id="101100" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>socat</match>
+	    <description>Socat usage detected.</description>
+	</rule>
+	<rule id="101101" level="12">
+	    <if_sid>101100</if_sid>
+	    <match>exec</match>
+	    <match>tcp</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- ruby -->
+	<rule id="101120" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>ruby</match>
+	    <description>Socat usage detected.</description>
+	</rule>
+	<rule id="101121" level="12">
+	    <if_sid>101120</if_sid>
+	    <match>-rsocket</match>
+	    <match>-e</match>
+	    <match>tcpsocket</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- xterm -->
+	<rule id="101140" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>xterm</match>
+	    <description>Xterm usage detected.</description>
+	</rule>
+	<rule id="101141" level="12">
+	    <if_sid>101140</if_sid>
+	    <match>-display</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- xhost -->
+	<rule id="101160" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>xhost</match>
+	    <description>xhost usage detected.</description>
+	</rule>
+
+	<!-- xnest -->
+	<rule id="101180" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>Xnest</match>
+	    <description>Xnest usage detected.</description>
+	</rule>
+
+	<!-- alternative netcat -->
+	<rule id="101200" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>nc</match>
+	    <description>Netcat usage detected.</description>
+	</rule>
+	<rule id="101201" level="12">
+	    <if_sid>101200</if_sid>
+	    <match>rm</match>
+	    <match>mkfifo|mknod</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- awk -->
+	<rule id="101220" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>awk</match>
+	    <description>awk usage detected.</description>
+	</rule>
+	<rule id="101221" level="12">
+	    <if_sid>101220</if_sid>
+	    <match>/inet/tcp/</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- telnet -->
+	<rule id="101240" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>telnet</match>
+	    <description>telnet usage detected.</description>
+	</rule>
+	<rule id="101241" level="12">
+	    <if_sid>101240</if_sid>
+	    <match>sh</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+
+	<!-- lua -->
+	<rule id="101260" level="0">
+	    <if_sid>101000</if_sid>
+	    <match>lua</match>
+	    <description>lua usage detected.</description>
+	</rule>
+	<rule id="101261" level="12">
+	    <if_sid>101260</if_sid>
+	    <match>socket</match>
+	    <match>execute</match>
+	    <description>Potential Shell Detected.</description>
+	</rule>
+</group>

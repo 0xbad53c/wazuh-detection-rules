@@ -1,0 +1,74 @@
+<!--
+	Sysmon For Linux OSSEC/Wazuh rules - by 0xbad53c
+
+	based on/contains rules from:
+	https://github.com/SigmaHQ/sigma/tree/master/rules/linux
+-->
+<group name="reverse_shells">
+	<!-- netcat -->
+	<rule id="110000" level="0">
+	    <if_sid>80789</if_sid>
+	    <field name="audit.exe">/usr/bin/nc</field>
+	    <description>Netcat usage detected.</description>
+	    <group>audit_command,</group>
+	</rule>
+	<rule id="110001" level="12">
+	    <if_sid>110000</if_sid>
+	    <match> -e </match>
+	    <description>Potential Shell: $(audit.exe) with user loginuid $(audit.auid)</description>
+	    <group>audit_command,</group>
+	</rule>
+
+	<!-- bash -->
+	<rule id="110020" level="0">
+	    <if_sid>80789</if_sid>
+	    <field name="audit.exe">/usr/bin/bash</field>
+	    <description>Bash usage detected.</description>
+	    <group>audit_command,</group>
+	</rule>
+	<rule id="110021" level="12">
+	    <if_sid>110020</if_sid>
+	    <match>/dev/tcp/</match>
+	    <description>Potential Shell: $(audit.exe) with user loginuid $(audit.auid)</description>
+	    <group>audit_command,</group>
+	</rule>
+	<rule id="110022" level="12">
+	    <if_sid>110020</if_sid>
+	    <match>/dev/udp/</match>
+	    <description>Potential Shell: $(audit.exe) with user loginuid $(audit.auid)</description>
+	    <group>audit_command,</group>
+	</rule>
+
+	<!-- python -->
+	<rule id="110030" level="3">
+	    <if_sid>80789</if_sid>
+	    <field name="audit.exe">/usr/bin/python|/usr/bin/python2|/usr/bin/python3</field>
+	    <description>Python usage detected.</description>
+	    <group>audit_command,</group>
+	</rule>
+	<rule id="110031" level="12">
+	    <if_sid>110030</if_sid>
+	    <match>-c</match>
+	    <match>socket.socket</match>
+	    <match>subprocess.call</match>
+	    <description>Potential Shell: $(audit.exe) with user loginuid $(audit.auid)</description>
+	    <group>audit_command,</group>
+	</rule>
+
+
+	<!-- php -->
+	<rule id="110050" level="0">
+	    <if_sid>80789</if_sid>
+	    <field name="audit.exe">/usr/bin/php</field>
+	    <description>PHP usage detected.</description>
+	    <group>audit_command,</group>
+	</rule>
+	<rule id="110051" level="12">
+	    <if_sid>110050</if_sid>
+	    <match>-r</match>
+	    <match>fsockopen</match>
+	    <match>exec</match>
+	    <description>Potential Shell: $(audit.exe) with user loginuid $(audit.auid)</description>
+	    <group>audit_command,</group>
+	</rule>
+</group>

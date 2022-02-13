@@ -1,0 +1,40 @@
+<!--
+    OSSEC/Wazuh rules - by 0xbad53c
+-->
+<group name="rdp">
+<!-- https://groups.google.com/g/wazuh/c/D38DBp2WGxM -->
+<!-- https://github.com/wazuh/wazuh/issues/7651 -->
+
+<rule id="999000" level="0">
+    <if_sid>60009</if_sid>
+    <field name="win.system.channel">^Microsoft-Windows-TerminalServices-LocalSessionManager/Operational$</field>
+    <options>no_full_log</options>
+    <description>Group of Windows rules for the Local Session Manager channel</description>
+</rule>
+
+ <rule id="999001" level="3">
+    <if_sid>999000</if_sid>
+    <field name="win.system.eventID">21</field>
+    <description>Remote Desktop Session Logon</description>
+</rule>
+
+ <rule id="999002" level="3">
+    <if_sid>999000</if_sid>
+    <field name="win.system.eventID">23</field>
+    <description>Remote Desktop Session Logoff</description>
+</rule>
+
+ <rule id="999003" level="3">
+    <if_sid>999000</if_sid>
+    <field name="win.system.eventID">24</field>
+    <description>Remote Desktop Session Disconnected</description>
+</rule>
+
+ <rule id="999004" level="3">
+    <if_sid>999000</if_sid>
+    <field name="win.system.eventID">25</field>
+    <description>Remote Desktop Session Reconnected</description>
+</rule>
+
+
+</group>

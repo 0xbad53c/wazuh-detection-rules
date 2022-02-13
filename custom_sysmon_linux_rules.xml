@@ -1,0 +1,236 @@
+<!--
+	OSSEC/Wazuh rules - by 0xbad53c
+-->
+<group name="sysmon-linux">
+	<rule id="151000" level="0">
+	    <if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.image">/usr/bin/nc|nc|ncat</field>
+	    <description>SysmonForLinux - Netcat usage detected.</description>
+	</rule>
+	<rule id="151001" level="0">
+	    <if_sid>151000</if_sid>
+	    <options>no_full_log</options>
+	    <field name="eventdata.commandLine"> -e </field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	    <group>reverse_shells,</group>
+	</rule>
+	<rule id="151002" level="12" frequency="2" timeframe="120" ignore="600">
+            <if_matched_sid>151001</if_matched_sid>
+	    <same_source_ip />
+            <description>SysmonForLinux - Potential Shell Detected.</description>
+            <group>reverse_shells,</group>
+        </rule>
+	<rule id="151003" level="0">
+	    <if_sid>151000</if_sid>
+	    <options>no_full_log</options>
+	    <field name="eventdata.commandLine"> -c </field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	    <group>reverse_shells,</group>
+	</rule>
+        <rule id="151004" level="12" frequency="2" timeframe="120" ignore="600">
+            <if_matched_sid>151003</if_matched_sid>
+            <same_source_ip />
+            <description>SysmonForLinux - Potential Shell Detected.</description>
+            <group>reverse_shells,</group>
+        </rule>
+
+	<rule id="151010" level="0">
+		<if_group>sysmon_linux_event3</if_group>
+		<options>no_full_log</options>		
+		<field name="eventdata.image">sh|bash|dash|fish|zsh|ksh|csh|busybox|tcsh|tclsh</field>
+	    <description>SysmonForLinux - Shell connecting to $(eventdata.destinationIp) on port $(eventdata.destinationPort).</description>
+	</rule>
+
+	<rule id="151011" level="7" frequency="2" timeframe="120" ignore="600">
+                <same_source_ip />
+                <if_matched_sid>151010</if_matched_sid>
+            <description>SysmonForLinux - Shell connecting to $(eventdata.destinationIp) on port $(eventdata.destinationPort).</description>
+        </rule>
+
+	<rule id="151020" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+		<field name="eventdata.image">python</field>
+	    <description>SysmonForLinux - Python usage detected.</description>
+	</rule>
+	<rule id="151021" level="12">
+	    <if_sid>151020</if_sid>
+	    <field name="eventdata.commandLine">-c</field>
+	    <field name="eventdata.commandLine">socket</field>
+	    <field name="eventdata.commandLine">subprocess</field>
+	    <field name="eventdata.commandLine">call</field>
+	    <description>SysmonForLinux - Potential Python Shell Detected.</description>
+	    <group>reverse_shells,</group>
+	</rule>
+	<rule id="151022" level="12">
+	    <if_sid>151020</if_sid>
+	    <field name="eventdata.commandLine">-c</field>
+	    <field name="eventdata.commandLine">socket</field>
+	    <field name="eventdata.commandLine">pty</field>
+	    <field name="eventdata.commandLine">spawn</field>
+	    <description>SysmonForLinux - Potential Python Shell Detected.</description>
+	    <group>reverse_shells,</group>
+	</rule>
+
+	<rule id="151030" level="0">
+		<if_group>sysmon_linux_event3</if_group>
+		<field name="eventdata.image">^/tmp|^/home|^/root</field>
+	    <options>no_full_log</options>
+<description>SysmonForLinux - Program connecting to $(eventdata.destinationIp) on port $(eventdata.destinationPort) from binary in uncommon location.</description>
+	</rule>
+
+<rule id="151031" level="7" frequency="2" timeframe="120" ignore="600">
+<if_matched_sid>151030</if_matched_sid>               
+ <same_source_ip />
+                <field name="eventdata.image">^/tmp|^/home|^/root</field>
+            <description>SysmonForLinux - Program connecting to $(eventdata.destinationIp) on port $(eventdata.destinationPort) from binary in uncommon location.</description>
+        </rule>
+
+	<rule id="151040" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+		<field name="eventdata.image">php</field>
+	    <description>SysmonForLinux - PHP usage detected.</description>
+	</rule>
+	<rule id="151041" level="12">
+	    <if_sid>151040</if_sid>
+	    <field name="eventdata.commandLine">-r</field>
+	    <field name="eventdata.commandLine">fsockopen</field>
+	    <field name="eventdata.commandLine">exec|shell_exec|system|passthru|popen|`</field>
+	    <description>SysmonForLinux - Potential PHP Shell Detected.</description>
+	    <group>reverse_shells,</group>
+	</rule>
+
+
+	<!-- perl -->
+	<rule id="151050" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <match>perl</match>
+	    <description>Perl usage detected.</description>
+	</rule>
+	<rule id="151051" level="12">
+	    <if_sid>151050</if_sid>
+	    <field name="eventdata.commandLine">-e</field>
+	    <field name="eventdata.commandLine">socket</field>
+	    <field name="eventdata.commandLine">connect</field>
+	    <description>Potential Perl Shell Detected.</description>
+	</rule>
+	<rule id="151052" level="12">
+	    <if_sid>151050</if_sid>
+	    <field name="eventdata.commandLine">-MIO</field>
+	    <field name="eventdata.commandLine">-e</field>
+	    <field name="eventdata.commandLine">Socket</field>
+	    <description>Potential Perl Shell Detected.</description>
+	</rule>
+	
+
+
+	<!-- socat -->
+	<rule id="151060" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">socat</field>
+	    <description>Socat usage detected.</description>
+	</rule>
+	<rule id="151061" level="12">
+	    <if_sid>151060</if_sid>
+	    <field name="eventdata.commandLine">exec</field>
+	    <field name="eventdata.commandLine">tcp</field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	</rule>
+
+	<!-- ruby -->
+	<rule id="151070" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">ruby</field>
+	    <description>Socat usage detected.</description>
+	</rule>
+	<rule id="151071" level="12">
+	    <if_sid>151070</if_sid>
+	    <field name="eventdata.commandLine">-rsocket</field>
+	    <field name="eventdata.commandLine">-e</field>
+	    <field name="eventdata.commandLine">tcpsocket</field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	</rule>
+
+	<!-- xterm -->
+	<rule id="151080" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">xterm</field>
+	    <description>Xterm usage detected.</description>
+	</rule>
+	<rule id="151081" level="12">
+	    <if_sid>151080</if_sid>
+	    <field name="eventdata.commandLine">-display</field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	</rule>
+
+	<!-- xhost -->
+	<rule id="151090" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">xhost</field>
+	    <description>xhost usage detected.</description>
+	</rule>
+
+	<!-- xnest -->
+	<rule id="151100" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">Xnest</field>
+	    <description>Xnest usage detected.</description>
+	</rule>
+
+	<!-- alternative netcat -->
+	<rule id="151110" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">nc</field>
+	    <description>Netcat usage detected.</description>
+	</rule>
+	<rule id="151111" level="12">
+	    <if_sid>151110</if_sid>
+	    <field name="eventdata.commandLine">rm</field>
+	    <field name="eventdata.commandLine">mkfifo|mknod</field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	</rule>
+
+	<!-- awk -->
+	<rule id="151120" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">awk</field>
+	    <description>awk usage detected.</description>
+	</rule>
+	<rule id="151121" level="12">
+	    <if_sid>151120</if_sid>
+	    <field name="eventdata.commandLine">/inet/tcp/</field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	</rule>
+
+	<!-- telnet -->
+	<rule id="151130" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">telnet</field>
+	    <description>telnet usage detected.</description>
+	</rule>
+	<rule id="151131" level="12">
+	    <if_sid>151130</if_sid>
+	    <field name="eventdata.commandLine">sh</field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	</rule>
+
+	<!-- lua -->
+	<rule id="151140" level="0">
+		<if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.commandLine">lua</field>
+	    <description>lua usage detected.</description>
+	</rule>
+	<rule id="151141" level="12">
+	    <if_sid>151140</if_sid>
+	    <field name="eventdata.commandLine">socket</field>
+	    <field name="eventdata.commandLine">execute</field>
+	    <description>SysmonForLinux - Potential Shell Detected.</description>
+	</rule>
+
+	<!-- recon events -->
+	<rule id="151200" level="5">
+	    <if_group>sysmon_linux_event1</if_group>
+	    <field name="eventdata.image">nmap</field>
+	    <description>SysmonForLinux - Nmap usage detected.</description>
+	    <group>recon,</group>
+	</rule>
+</group>

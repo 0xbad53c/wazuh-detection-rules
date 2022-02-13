@@ -1,0 +1,21 @@
+<!--
+    OSSEC/Wazuh rules - by 0xbad53c
+-->
+<group name="supress-winlogon">
+<!-- filter out account names from logon logoff events -->
+<rule id="108003" level="0">
+    <if_sid>60106,60137</if_sid>
+    <field name="win.eventdata.targetUserName">(^HealthMailbox.*$)||(^.*\$$)</field>
+    <description>Ignore Windows Logon/Logoff Success</description>
+    <options>no_full_log</options>
+    <group>authentication_success,pci_dss_10.2.5,gpg13_7.1,gpg13_7.2,gdpr_IV_32.2,</group>
+  </rule>
+<!-- ignore machine accounts -->
+<rule id="108004" level="0">
+    <if_sid>60106,60137</if_sid>
+    <field name="win.eventdata.targetUserName">^.*\$$</field>
+    <description>Ignore Windows Logon/Logoff Success</description>
+    <options>no_full_log</options>
+    <group>authentication_success,pci_dss_10.2.5,gpg13_7.1,gpg13_7.2,gdpr_IV_32.2,</group>
+  </rule>
+</group>

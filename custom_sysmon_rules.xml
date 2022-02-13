@@ -1,0 +1,360 @@
+<!--
+    OSSEC/Wazuh rules - by 0xbad53c
+-->
+<!-- every sysmon eventid gets 2k space for rules -->
+<group name="windows, sysmon, sysmon_process-anomalies,">
+	<rule id="300000" level="0">
+		<if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">rundll32.exe$</field>
+        <description>Sysmon - rundll32.exe execution</description>
+    </rule>
+
+    <rule id="300001" level="12">
+        <if_sid>300000</if_sid>
+        <field name="win.eventdata.imageLoaded">vaultcli.dll</field>
+        <description>Sysmon - Possible Mimikatz Running In-Memory</description>
+    </rule>
+
+    <rule id="300002" level="12">
+        <if_sid>300000</if_sid>
+        <field name="win.eventdata.imageLoaded">wlanapi.dll</field>
+        <description>Sysmon - Possible Mimikatz In-Memory</description>
+    </rule>
+
+
+    <rule id="300020" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">mshta.exe$</field>
+        <description>Sysmon - mshta.exe</description>
+    </rule>
+
+    <rule id="300021" level="12">
+        <if_sid>300020</if_sid>
+        <field name="win.eventdata.image">cmd.exe$|powershell.exe$|wscript.exe$|cscript.exe$|sh.exe$|bash.exe$|reg.exe$|regsvr32.exe$|BITSADMIN*</field>
+        <description>Sysmon - Detected a Windows command line executable started from MSHTA</description>
+    </rule>
+
+
+    <rule id="300040" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">WINWORD.EXE$|EXCEL.EXE$|POWERPNT.exe$|MSPUB.exe$|VISIO.exe$</field>
+        <description>Sysmon - MS Office binary running</description>
+    </rule>
+
+
+    <rule id="300041" level="10">
+        <if_sid>300040</if_sid>
+        <field name="win.eventdata.image">cmd.exe$</field>
+        <description>Sysmon - Possible Office Macro Started : $(win.eventdata.image)</description>
+    </rule>
+    <rule id="300042" level="12">
+        <if_sid>300040</if_sid>
+        <field name="win.eventdata.image">cmd.exe$|powershell.exe$|wscript.exe$|cscript.exe$|sh.exe$|bash.exe$|scrcons.exe$|schtasks.exe$|regsvr32.exe$|hh.exe$</field>
+        <description>Sysmon - Microsoft Office Product Spawning Windows Shell</description>
+    </rule>
+
+    <rule id="300060" level="0">
+        <if_group>sysmon_event8</if_group>
+        <field name="win.eventdata.targetImage">lsass.exe$</field>
+        <description>Sysmon - Lsass target</description>
+    </rule>
+
+    <rule id="300061" level="12">
+        <if_sid>300060</if_sid>
+        <field name="win.eventdata.startModule">null</field>
+        <description>Sysmon - Password Dumper Remote Thread in LSASS</description>
+    </rule>
+
+    <rule id="300062" level="6">
+        <if_group>sysmon_event8</if_group>
+        <description>Sysmon - Remote Thread Creation Detected from $(win.eventdata.sourceImage) to $(win.eventdata.targetImage), might indicate process injection!</description>
+    </rule>
+
+    <!-- need to fix event id 3 detection in sysmon. Not logged currently or not working properly? -->
+    <rule id="300080" level="0">
+        <if_group>sysmon_event3</if_group>
+        <field name="win.eventdata.image">rundll32.exe$</field>
+        <description>Sysmon - Rundll32 communicating over the network</description>
+    </rule>
+
+    <rule id="300081" level="6">
+        <if_sid>300080</if_sid>
+        <description>Sysmon - Rundll32 communicating over the network</description>
+    </rule>
+
+    <rule id="300100" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">certutil.exe$</field>
+        <description>Sysmon - Certutil execution</description>
+    </rule>
+
+    <rule id="300101" level="6">
+        <if_sid>300100</if_sid>
+        <field name="win.eventdata.commandline">URL|decode|decodehex|urlcache|ping</field>
+        <description>Sysmon - Certutil used to download or decode</description>
+    </rule>
+
+
+     <rule id="300120" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">control.exe$</field>
+        <description>Sysmon - Detects suspicious Rundll32 execution from control.exe as used by Equation Group and Exploit Kits</description>
+    </rule>
+
+
+    <rule id="300121" level="12">
+        <if_sid>300120</if_sid>
+        <field name="win.eventdata.image">rundll32.exe$</field>
+        <description>Sysmon - Detects suspicious Rundll32 execution from control.exe as used by Equation Group and Exploit Kits</description>
+    </rule>
+
+    <rule id="300122" level="0">
+        <if_sid>300121</if_sid>
+        <match>timedate.cpl</match>
+        <description>Sysmon - Exclude</description>
+    </rule>
+
+    <rule id="300140" level="12">
+        <if_group>sysmon_event6</if_group>
+        <field name="win.eventdata.imageLoaded">\\Temp</field>
+        <description>Sysmon - Detects a driver load from a temporary directory</description>
+    </rule>
+
+    <rule id="300141" level="6">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">^C:\\\\PerfLogs\\\\|^C:\\\\\$Recycle.bin\\\\|^C:\\\\Intel\\\\Logs\\\\|^C:\\\\Users\\\\Default\\\\|^C:\\\\Users\\\\Public\\\\|^C:\\\\Users\\\\NetworkService\\\\|^C:\\\\Windows\\\\Fonts\\\\|^C:\\\\Windows\\\\Debug\\\\|^C:\\\\Windows\\\\Media\\\\|^C:\\\\Windows\\\\Help\\\\|^C:\\\\Windows\\\\addins\\\\|^C:\\\\Windows\\\\repair\\\\|^C:\\\\Windows\\\\security\\\\|\\\\RSA\\\\MachineKeys\\\\|^C:\\\\Windows\\\\system32\\\\config\\\\systemprofile</field>
+        <description>Sysmon - Detects process starts of binaries from a suspicious folder</description>
+    </rule>
+
+    <rule id="300160" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">mmc.exe$</field>
+        <description>Sysmon - Processes started by MMC could by a sign of lateral movement using MMC application COM object</description>
+    </rule>
+
+    <rule id="300161" level="6">
+        <if_sid>300160</if_sid>
+        <field name="win.eventdata.image">cmd.exe$</field>
+        <description>Sysmon - Processes started by MMC could by a sign of lateral movement using MMC application COM object</description>
+    </rule>
+
+        <rule id="300162" level="6">
+        <if_sid>300160</if_sid>
+        <field name="win.eventdata.image">powershell.exe$</field>
+        <description>Sysmon - Processes started by MMC could by a sign of lateral movement using MMC application COM object</description>
+    </rule>
+
+
+
+    <!-- https://pentest.blog/windows-privilege-escalation-methods-for-pentesters/-->
+    <rule id="300180" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">net.exe$|net1.exe$</field>
+        <description>Detects execution of Net.exe, whether suspicious or benign.</description>
+    </rule>
+
+
+     <rule id="300181" level="3">
+        <if_sid>300180</if_sid>
+        <field name="win.eventdata.commandline">group|localgroup|user|view|share|accounts|use</field>
+        <description>Sysmon - Detects execution of Net.exe, whether suspicious or benign</description>
+    </rule>
+
+    <rule id="300182" level="3">
+        <if_sid>300180</if_sid>
+        <field name="win.eventdata.commandline">net group "domain admins" /domain|net localgroup administrators|net1 group "domain admins" /domain|net1 localgroup administrators</field>
+        <description>Sysmon - Enumeration of privileged users/groups</description>
+    </rule>
+
+    <rule id="300200" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">wscript.exe$|cscript.exe$</field>
+        <description>Sysmon - wscript/cscript.exe</description>
+    </rule>
+
+    <rule id="300201" level="6">
+        <if_sid>300200</if_sid>
+        <field name="win.eventdata.image">powershell.exe$</field>
+        <description>Sysmon - Detects suspicious powershell invocations from interpreters or unusual programs</description>
+    </rule>
+
+
+    <rule id="300202" level="6">
+        <if_sid>300200</if_sid>
+        <field name="win.eventdata.image">cmd.exe$</field>
+        <description>Sysmon - Detects suspicious powershell invocations from interpreters or unusual programs</description>
+    </rule>
+
+    <rule id="300203" level="0">
+        <if_sid>300200</if_sid>
+        <match>getfilecounts.vbs</match>
+        <description>Sysmon - Exclude</description>
+    </rule>
+
+    <rule id="300220" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">regsvr32.exe$</field>
+        <description>Sysmon - Detects various anomalies in relation to regsvr32.exe</description>
+    </rule>
+
+    <rule id="300221" level="12">
+        <if_sid>300220</if_sid>
+        <field name="win.eventdata.commandline">\\\\Temp</field>
+        <description>Sysmon - Detects various anomalies in relation to regsvr32.exe</description>
+    </rule>
+
+	<rule id="300222" level="12">
+        <if_sid>300220</if_sid>
+        <field name="win.eventdata.parentImage">powershell.exe</field>
+        <description>Sysmon - Detects various anomalies in relation to regsvr32.exe</description>
+    </rule>
+
+    <rule id="300223" level="12">
+        <if_sid>300220</if_sid>
+        <field name="win.eventdata.commandline">scrobj.dll</field>
+        <description>Sysmon - Detects various anomalies in relation to regsvr32.exe</description>
+    </rule>
+
+    <rule id="300240" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">schtasks.exe$</field>
+        <description>Sysmon - Detects the creation of scheduled tasks in user session</description>
+    </rule>
+
+    <rule id="300241" level="12">
+        <if_sid>300240</if_sid>
+        <field name="win.eventdata.commandline">/create</field>
+        <description>Sysmon - Detects the creation of scheduled tasks in user session</description>
+    </rule>
+
+    <rule id="300260" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">wscript.exe$|cscript.exe$</field>
+        <description>Sysmon - Detects various anomalies in relation to wscriptcscript</description>
+    </rule>
+
+    <rule id="300261" level="12">
+        <if_sid>300260</if_sid>
+        <field name="win.eventdata.commandline">jse|vbe|js|vba</field>
+        <description>Sysmon - Detects suspicious file execution by wscript and cscript</description>
+    </rule>
+
+
+    <rule id="300280" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">svchost.exe$</field>
+        <description>Sysmon - Suspicious Svchost Process</description>
+    </rule>
+
+    <rule id="300281" level="12">
+        <if_sid>300280</if_sid>
+        <field name="win.eventdata.image">services.exe$</field>
+        <description>Sysmon - Detects a suspicious scvhost process start</description>
+    </rule>
+
+
+    <rule id="300300" level="12">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.commandline">vssadmin.exe Delete Shadows|vssadmin create shadow|GLOBALROOT|vssadmin delete shadows|reg SAVE HKLM\\\\SYSTEM|\\\\windows\\\\ntds\\\\ntds.dit</field>
+        <description>Sysmon - Detects suspicious commands that could be related to activity that uses volume shadow copy</description>
+    </rule>
+
+    <rule id="300320" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">wmic.exe$</field>
+        <description>Sysmon - Detects WMI executing suspicious commands</description>
+    </rule>
+
+    <rule id="300321" level="12">
+        <if_sid>300320</if_sid>
+        <field name="win.eventdata.commandline">process call create|AntiVirusProduct get|FirewallProduct get|shadowcopy delete</field>
+        <description>Sysmon - Detects WMI executing suspicious commands</description>
+    </rule>
+
+
+
+
+
+    <rule id="300340" level="12">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.commandline">transport=dt_socket,address=</field>
+        <description>Sysmon - Detects a JAVA process running with remote debugging allowing more than just localhost to connect</description>
+    </rule>
+
+    <rule id="300360" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">WINWORD.EXE$|EXCEL.EXE$|POWERPNT.exe$|MSPUB.exe$|VISIO.exe$</field>
+        <description>Sysmon - MS Word</description>
+    </rule>
+
+    <rule id="300361" level="12">
+    	<if_sid>300360</if_sid>
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">csc.exe$</field>
+        <description>Sysmon - Detects Office process starting uncommon sub process csc.exe as used in exploits</description>
+    </rule>
+
+    <rule id="300362" level="0">
+        <if_sid>300361</if_sid>
+        <match>xj6r_ru4.cmdline</match>
+        <description>Sysmon - Exclude</description>
+    </rule>
+
+    <rule id="300380" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.parentImage">apache|tomcat|w3wp.exe$|php-cgi.exe$|nginx.exe$|httpd.exe$</field>
+        <description>Sysmon - Webshell detection</description>
+    </rule>
+
+    <rule id="300381" level="0">
+        <if_sid>300380</if_sid>
+        <field name="win.eventdata.commandline">whoami|net user|ping -n|systeminfo</field>
+        <description>Sysmon - Webshell detection</description>
+    </rule>
+
+    <rule id="300400" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">bitsadmin.exe$</field>
+        <description>Sysmon - Bitsadmin.exe detection</description>
+    </rule>
+
+    <rule id="300401" level="6">
+        <if_sid>300400</if_sid>
+        <field name="win.eventdata.commandline">/transfer</field>
+        <description>Sysmon - Detects usage of bitsadmin to download a file</description>
+    </rule>
+
+ 
+    <rule id="300420" level="0">
+        <if_sid>184666</if_sid>
+        <match>MsMpEng.exe</match>
+        <description>Sysmon - Exclude</description>
+    </rule>
+
+    <rule id="300440" level="3">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">mshta.exe$</field>
+        <description>Sysmon - mshta.exe detected</description>
+    </rule>
+
+
+
+   <rule id="300460" level="0">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">conhost.exe$</field>
+        <description>Sysmon - Mimikatz Detection Parent Image $(win.eventdata.parentImage)</description>
+    </rule>
+   <rule id="300461" level="12">
+        <if_sid>300460</if_sid>
+        <field name="win.eventdata.parentImage">mimikatz.exe$</field>
+        <description>Sysmon - Mimikatz Detection Image: $(win.eventdata.parentImage)</description>
+    </rule>
+
+
+    <rule id="300480" level="12">
+        <if_group>sysmon_event1</if_group>
+        <field name="win.eventdata.image">mimikatz.exe$</field>
+        <description>Sysmon - Mimikatz Execution Detected</description>
+    </rule>
+
+</group>
